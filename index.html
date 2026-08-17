@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>MÉRIDIENNE — vitrine des collections</title>
+<title>SILHOUETTE — vitrine des collections</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#FFFFFF">
 <meta name="description" content="Vestiaire femme 2026 : quatre saisons, dix familles, dix déclinaisons par famille.">
@@ -11,7 +11,7 @@
 <link rel="apple-touch-icon" href="img/icone-apple-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Méridienne">
+<meta name="apple-mobile-web-app-title" content="Collection">
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -184,7 +184,7 @@ footer b{color:var(--encre);font-weight:400}
 
 <header>
   <div>
-    <h1 class="marque">Méri<em>dienne</em></h1>
+    <h1 class="marque">Sil<em>houette</em></h1>
     <p class="sous">Vestiaire femme 2026 — quatre saisons, dix familles, dix déclinaisons par famille.</p>
   </div>
   <button class="cadenas" id="cadenas" title="Espace atelier" aria-label="Espace atelier">&#9737;</button>
@@ -833,9 +833,9 @@ document.getElementById("dlSaison").onclick = function(){
   telecharger("prompts-2026-" + etat.saison + ".txt", texteSaison(etat.saison), this, "Fichier généré");
 };
 document.getElementById("dlTout").onclick = function(){
-  let x = "MÉRIDIENNE 2026 — 400 prompts\n";
+  let x = "SILHOUETTE 2026 — 400 prompts\n";
   SAISONS.forEach(s=>{ x += "\n\n" + "*".repeat(56) + "\n" + s.nom.toUpperCase() + "\n" + "*".repeat(56) + "\n" + texteSaison(s.cle); });
-  telecharger("meridienne-2026-400-prompts.txt", x, this, "Fichier généré");
+  telecharger("silhouette-2026-400-prompts.txt", x, this, "Fichier généré");
 };
 document.getElementById("dlIndex").onclick = function(){
   let x = "", ok = 0, tot = 0;
