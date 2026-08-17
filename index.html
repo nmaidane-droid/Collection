@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MÉRIDIENNE — vitrine des collections</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Jost:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --fond:#FFFFFF;
+  --surface:#F6F6F4;
+  --encre:#111113;
+  --gris:#6E6E73;
+  --trait:rgba(17,17,19,.13);
+  --accent:#6E5518;
+  --led-on:#25C05A;
+  --led-off:#D7DAD7;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--fond);color:var(--encre);
+  font-family:'Jost',system-ui,sans-serif;font-weight:300;font-size:16px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;padding-bottom:70px;
+}
+.wrap{max-width:1020px;margin:0 auto;padding:0 20px}
+.mono{font-family:'IBM Plex Mono',monospace;letter-spacing:.16em;text-transform:uppercase}
+
+/* ---------- en-tête ---------- */
+header{padding:30px 0 20px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.marque{font-family:'Cormorant Garamond',serif;font-size:clamp(30px,8vw,48px);line-height:.98;margin:0;font-weight:300;letter-spacing:.03em}
+.marque em{font-style:italic;color:var(--gris)}
+.sous{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:17px;color:var(--gris);margin:9px 0 0;max-width:38ch}
+.cadenas{
+  appearance:none;background:transparent;border:1px solid var(--trait);color:var(--gris);
+  width:42px;height:42px;flex:0 0 42px;font-size:16px;cursor:pointer;transition:border-color .18s,color .18s;
+}
+.cadenas:hover{border-color:var(--encre);color:var(--encre)}
+.cadenas.ouvert{border-color:var(--accent);color:var(--accent);background:#FBF7EC}
+
+/* ---------- sélecteurs ---------- */
+.barre{border-top:1px solid var(--trait);padding:16px 0 0;margin-bottom:24px}
+.rang{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.etiq{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--gris)}
+.mini{display:flex;gap:6px}
+.mini button{
+  appearance:none;background:transparent;border:1px solid var(--trait);color:var(--gris);
+  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.12em;
+  padding:6px 13px 6px 24px;cursor:pointer;position:relative;transition:color .16s,border-color .16s;
+}
+.mini button[aria-pressed="true"]{color:var(--encre);border-color:var(--encre)}
+
+.segmente{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--trait);margin-bottom:12px}
+.segmente button{
+  appearance:none;background:transparent;border:0;border-right:1px solid var(--trait);
+  font-family:inherit;font-weight:300;font-size:14.5px;color:var(--gris);
+  padding:13px 4px 13px 4px;cursor:pointer;position:relative;transition:color .16s;
+}
+.segmente button:last-child{border-right:0}
+.segmente button[aria-pressed="true"]{color:var(--encre);font-weight:400}
+
+.led{
+  position:absolute;top:50%;left:8px;transform:translateY(-50%);
+  width:7px;height:7px;border-radius:50%;
+  background:var(--led-off);
+  box-shadow:inset 0 0 0 1px rgba(17,17,19,.10);
+}
+[aria-pressed="true"] > .led{
+  background:var(--led-on);
+  box-shadow:inset 0 0 0 1px rgba(12,90,45,.35), 0 0 6px 1px rgba(37,192,90,.75);
+}
+.segmente .led{left:50%;top:auto;bottom:7px;transform:translateX(-50%)}
+.famgrille{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+@media(min-width:560px){.famgrille{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:880px){.famgrille{grid-template-columns:repeat(5,1fr)}}
+.fam{
+  appearance:none;background:transparent;border:1px solid var(--trait);color:var(--gris);
+  font-family:inherit;font-weight:300;font-size:13.5px;padding:11px 20px 11px 20px;cursor:pointer;
+  text-align:center;position:relative;transition:color .16s,border-color .16s;
+}
+.fam:hover{border-color:var(--gris)}
+.fam[aria-pressed="true"]{color:var(--encre);border-color:var(--encre);font-weight:400}
+.fam .pt{position:absolute;bottom:6px;right:7px;width:6px;height:6px;border-radius:50%;background:var(--accent);opacity:0}
+body.admin .fam .pt.plein{opacity:1}
+
+.famselect{display:flex;align-items:center;gap:12px}
+.famselect select{
+  flex:1;appearance:none;background:transparent;border:1px solid var(--trait);color:var(--encre);
+  font-family:'Cormorant Garamond',serif;font-size:22px;padding:12px 40px 12px 14px;cursor:pointer;
+  background-image:linear-gradient(45deg,transparent 50%,var(--encre) 50%),linear-gradient(135deg,var(--encre) 50%,transparent 50%);
+  background-position:calc(100% - 20px) 55%,calc(100% - 14px) 55%;
+  background-size:6px 6px,6px 6px;background-repeat:no-repeat;border-radius:0;
+}
+
+/* ---------- palette ---------- */
+.palette{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-bottom:8px}
+.teinte{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--gris)}
+.teinte i{width:15px;height:15px;border-radius:50%;border:1px solid rgba(17,17,19,.15);display:inline-block}
+.source{font-size:9.5px;color:var(--gris);margin:0 0 24px}
+
+/* ---------- grille des pièces ---------- */
+.grille{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+@media(min-width:640px){.grille{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:900px){.grille{grid-template-columns:repeat(5,1fr)}}
+.carte{appearance:none;background:transparent;border:0;padding:0;text-align:left;color:var(--encre);font-family:inherit;cursor:pointer;display:block}
+.vignette{position:relative;width:100%;aspect-ratio:4/5;background:var(--surface);border:1px solid var(--trait);overflow:hidden}
+.vignette img{width:100%;height:100%;object-fit:cover;display:block}
+.vide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:7px;color:#B4B4B0}
+.vide span{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:.16em}
+.vide i{width:24px;height:24px;border:1px solid rgba(17,17,19,.15);border-radius:50%}
+.legende{padding:9px 1px 0}
+.legende .cat{font-family:'IBM Plex Mono',monospace;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--gris);display:flex;justify-content:space-between;align-items:center}
+.legende .cat i{width:9px;height:9px;border-radius:50%;border:1px solid rgba(17,17,19,.15)}
+.legende .nom{font-family:'Cormorant Garamond',serif;font-size:19px;line-height:1.15;margin-top:3px}
+.fichier{font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--accent);margin-top:4px;display:none;word-break:break-all}
+body.admin .fichier{display:block}
+
+/* ---------- fiche ---------- */
+.voile{position:fixed;inset:0;background:rgba(255,255,255,.98);z-index:50;display:none;overflow-y:auto;padding:26px 20px 60px}
+.voile.ouvert{display:block}
+.fiche{max-width:540px;margin:0 auto}
+.fiche .img{width:100%;aspect-ratio:4/5;background:var(--surface);border:1px solid var(--trait);overflow:hidden;position:relative}
+.fiche .img img{width:100%;height:100%;object-fit:cover;display:block}
+.fiche h2{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:34px;line-height:1.05;margin:18px 0 4px}
+.fiche .meta{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gris);margin:0 0 14px}
+.fiche .desc{font-family:'Cormorant Garamond',serif;font-size:19px;line-height:1.45;color:#3A3A3D;margin:0 0 18px}
+.fermer{appearance:none;background:transparent;border:1px solid var(--trait);color:var(--encre);font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;padding:11px 18px;cursor:pointer;margin-top:8px}
+.nav{display:flex;gap:6px;margin-bottom:14px}
+.zone-admin{display:none;margin-top:20px;padding-top:18px;border-top:1px solid var(--trait)}
+body.admin .zone-admin{display:block}
+.prompt{font-family:'IBM Plex Mono',monospace;font-size:12px;line-height:1.7;background:var(--surface);border-left:2px solid var(--accent);padding:13px;margin:0 0 12px;white-space:pre-wrap;word-break:break-word;-webkit-user-select:all;user-select:all}
+
+/* ---------- espace atelier ---------- */
+.panneau{display:none;border:1px solid var(--accent);background:#FDFBF5;padding:18px;margin-bottom:24px}
+body.admin .panneau{display:block}
+.panneau h3{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin:0 0 14px;font-weight:500}
+.compteur{font-family:'Cormorant Garamond',serif;font-size:26px;margin:0}
+.compteur small{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.14em;color:var(--gris);text-transform:uppercase;display:block;margin-top:3px}
+.jauge{height:3px;background:rgba(17,17,19,.1);margin:12px 0 18px}
+.jauge i{display:block;height:100%;background:var(--accent);width:0;transition:width .4s}
+.reglage{margin-bottom:13px}
+.reglage>span{display:block;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--gris);margin-bottom:6px}
+.groupe{display:flex;flex-wrap:wrap;gap:6px}
+.onglet{
+  appearance:none;background:transparent;border:1px solid var(--trait);color:var(--gris);
+  font-family:inherit;font-size:13px;font-weight:300;padding:7px 14px 7px 26px;cursor:pointer;
+  position:relative;transition:color .16s,border-color .16s;
+}
+.onglet:hover{border-color:var(--gris)}
+.onglet[aria-pressed="true"]{color:var(--encre);border-color:var(--encre);font-weight:400}
+.actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.bouton{appearance:none;background:var(--encre);color:#fff;border:1px solid var(--encre);font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;padding:11px 15px;cursor:pointer;transition:opacity .18s}
+.bouton:hover{opacity:.85}
+.bouton.sec{background:transparent;color:var(--encre);border-color:var(--trait)}
+
+.code{display:none;border:1px solid var(--trait);padding:18px;margin-bottom:22px;align-items:center;gap:10px;flex-wrap:wrap}
+.code.ouvert{display:flex}
+.code input{background:var(--surface);border:1px solid var(--trait);color:var(--encre);font-family:'IBM Plex Mono',monospace;font-size:18px;letter-spacing:.4em;padding:11px 14px;width:150px;text-align:center}
+.code p{margin:0;font-size:13px;color:var(--gris);flex:1 1 100%}
+
+.avenir{border:1px solid var(--trait);padding:44px 22px;text-align:center;color:var(--gris);display:none}
+.avenir.ouvert{display:block}
+.avenir p{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:20px;margin:0}
+
+footer{margin-top:46px;padding-top:18px;border-top:1px solid var(--trait);font-size:10px;color:var(--gris);line-height:2}
+footer b{color:var(--encre);font-weight:400}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div>
+    <h1 class="marque">Méri<em>dienne</em></h1>
+    <p class="sous">Vestiaire femme 2026 — quatre saisons, dix familles, dix déclinaisons par famille.</p>
+  </div>
+  <button class="cadenas" id="cadenas" title="Espace atelier" aria-label="Espace atelier">&#9737;</button>
+</header>
+
+<div class="code" id="zoneCode">
+  <p>Code atelier</p>
+  <input id="saisieCode" type="tel" inputmode="numeric" maxlength="6" placeholder="····">
+  <button class="bouton" id="valider">Entrer</button>
+  <button class="bouton sec" id="annuler">Annuler</button>
+</div>
+
+<div class="barre">
+  <div class="rang">
+    <span class="etiq">Collection</span>
+    <div class="mini" id="annees"></div>
+  </div>
+  <div class="segmente" id="saisons"></div>
+  <div class="famgrille" id="familles"></div>
+</div>
+
+<div id="zoneSaison">
+  <div class="palette" id="palette"></div>
+  <p class="source mono" id="source"></p>
+
+  <div class="panneau" id="panneau">
+    <h3>Espace atelier</h3>
+    <p class="compteur" id="compteur">—</p>
+    <div class="jauge"><i id="jaugeBarre"></i></div>
+    <div id="reglages"></div>
+    <div class="actions">
+      <button class="bouton" id="dlFamille">Prompts de la famille</button>
+      <button class="bouton sec" id="dlSaison">Prompts de la saison</button>
+      <button class="bouton sec" id="dlTout">Les 400</button>
+      <button class="bouton sec" id="dlIndex">Index des images</button>
+      <button class="bouton sec" id="verifier">Vérifier</button>
+    </div>
+  </div>
+
+  <div class="grille" id="grille"></div>
+</div>
+
+<div class="avenir" id="avenir"><p>Collection 2027 — à venir.</p></div>
+
+<footer>
+  Images attendues dans <b>img/</b> — nom imposé : <b>2026-saison-famille-numéro.jpg</b><br>
+  Les prompts et l'index ne sont visibles que dans l'espace atelier.
+</footer>
+
+</div>
+
+<div class="voile" id="voile">
+  <div class="fiche">
+    <div class="img" id="fImg"></div>
+    <h2 id="fNom"></h2>
+    <p class="meta" id="fMeta"></p>
+    <p class="desc" id="fDesc"></p>
+    <div class="nav">
+      <button class="fermer" id="fPrec">← Précédent</button>
+      <button class="fermer" id="fSuiv">Suivant →</button>
+    </div>
+    <div class="zone-admin">
+      <p class="meta" style="color:var(--accent)">Fichier attendu : <span id="fFichier"></span></p>
+      <div class="prompt" id="fPrompt"></div>
+      <div class="actions">
+        <button class="bouton" id="fCopier">Copier le prompt</button>
+        <button class="bouton sec" id="fTelecharger">Télécharger .txt</button>
+      </div>
+    </div>
+    <button class="fermer" id="fFermer">Fermer</button>
+  </div>
+</div>
+
+<script>
+/* ===================== SAISONS & PALETTES ===================== */
+const SAISONS = [
+  {cle:"printemps", nom:"Printemps"},
+  {cle:"ete",       nom:"Été"},
+  {cle:"automne",   nom:"Automne"},
+  {cle:"hiver",     nom:"Hiver"}
+];
+
+const PALETTES = {
+  printemps:{source:"Pantone printemps-été 2026 — versant clair", t:[
+    ["Cloud Dancer","#F1EEE9","soft cloud white"],
+    ["Tea Rose","#D98C86","tea rose pink"],
+    ["Sage Green","#A5AC91","soft sage green"],
+    ["Angora","#DACDB9","warm angora beige"],
+    ["Marina","#29497A","deep marina blue"],
+    ["Acacia","#CFCB3E","green-toned acacia yellow"]]},
+  ete:{source:"Pantone printemps-été 2026 — versant saturé", t:[
+    ["Lava Falls","#B01F2E","intense lava red"],
+    ["Alexandrite","#176E77","alexandrite teal"],
+    ["Muskmelon","#F07A3C","vivid muskmelon orange"],
+    ["Acacia","#CFCB3E","green-toned acacia yellow"],
+    ["White Onyx","#EFE9DF","clear white onyx"],
+    ["Marina","#29497A","deep marina blue"]]},
+  automne:{source:"Pantone automne-hiver 2026 — versant terreux", t:[
+    ["Muted Clay","#B08268","muted clay"],
+    ["Burnt Olive","#6B6437","burnt olive green"],
+    ["Arabian Spice","#7A4A2B","deep arabian spice brown"],
+    ["Toffee","#A6754F","soft toffee brown"],
+    ["Neptune Green","#4F8C7E","retro neptune green"],
+    ["Red Mahogany","#6E2B25","red mahogany"]]},
+  hiver:{source:"Pantone automne-hiver 2026 — versant profond et vif", t:[
+    ["Noir total","#16161A","total black"],
+    ["Red Mahogany","#6E2B25","red mahogany"],
+    ["Poseidon","#2B3A67","deep poseidon blue"],
+    ["Festival Fuchsia","#B5257E","festival fuchsia"],
+    ["All Aboard Blue","#2E5FA3","bright all-aboard blue"],
+    ["Cloud Dancer","#F1EEE9","soft cloud white"]]}
+};
+
+/* ===================== FAMILLES ===================== */
+const FAMILLES = [
+  {cle:"manteau",   nom:"Manteau",      off:0},
+  {cle:"tailleur",  nom:"Tailleur",     off:1},
+  {cle:"maille",    nom:"Maille",       off:2},
+  {cle:"pantalon",  nom:"Pantalon",     off:3},
+  {cle:"jupe",      nom:"Jupe",         off:4},
+  {cle:"blouse",    nom:"Blouse",       off:5},
+  {cle:"robe",      nom:"Robe de jour", off:2},
+  {cle:"cuir",      nom:"Cuir",         off:4},
+  {cle:"soir",      nom:"Robe du soir", off:1},
+  {cle:"manifeste", nom:"Manifeste",    off:3}
+];
+
+/* [nom, description FR, fragment EN — %C% couleur, %M% matière] */
+const DECLINAISONS = {
+manteau:[
+["Trench","Patte de vent, ceinture large, poignets à revers.","a %C% %M% trench coat with a storm flap, a wide belt and turned-back cuffs"],
+["Croisé","Double boutonnage, revers pointus, martingale au dos.","a double-breasted %C% %M% coat with peak lapels and a back half-belt"],
+["Cocon","Oversize, épaules tombantes, sans fermeture.","an oversized %C% %M% cocoon coat with dropped shoulders and no closure"],
+["Officier","Col montant, double rangée de boutons.","a %C% %M% officer coat with a standing collar and a double row of buttons"],
+["Cape","Fentes pour les bras, ourlet arrondi.","a %C% %M% cape coat with arm slits and a rounded hem"],
+["Sans col","Ligne droite, boutonnage entièrement dissimulé.","a collarless straight %C% %M% coat with fully concealed buttons"],
+["Redingote","Ajustée à la taille, ourlet largement évasé.","a fitted %C% %M% redingote nipped at the waist, flaring to a full hem"],
+["Capuche","Capuche profonde, brandebourgs.","a %C% %M% duffle coat with a deep hood and toggle fastenings"],
+["Kimono","Portefeuille, manches kimono, ceinture à nouer.","a %C% %M% wrap coat with kimono sleeves and a tie belt"],
+["Court","S'arrête à la hanche, poches plaquées.","a cropped %C% %M% coat ending at the hip, with patch pockets"]],
+tailleur:[
+["Strict","Veste droite structurée, jupe droite.","a %C% %M% skirt suit — a structured single-breasted jacket with a straight skirt"],
+["Smoking","Revers de satin, pantalon droit.","a %C% %M% tuxedo suit with satin lapels and straight trousers"],
+["Souple","Épaules arrondies sans épaulette, pantalon fluide.","a soft-tailored %C% %M% suit with rounded unpadded shoulders and fluid trousers"],
+["Boxy","Veste courte carrée, pantalon taille haute.","a %C% %M% suit with a cropped boxy jacket and high-waisted trousers"],
+["Long","Veste mi-cuisse sur pantalon étroit.","a %C% %M% suit with an elongated jacket to mid-thigh over narrow trousers"],
+["Ceinturé","Veste ceinturée dans le même tissu, jupe crayon.","a belted %C% %M% suit, the jacket cinched with a self-fabric belt over a pencil skirt"],
+["Sans col","Encolure ronde nette, pantalon slim.","a collarless %C% %M% suit with a clean round neckline and slim trousers"],
+["Bermuda","Veste ajustée, bermuda taille haute.","a %C% %M% short suit — a fitted jacket with high-waisted tailored bermudas"],
+["Croisé","Revers larges, pantalon palazzo.","a double-breasted %C% %M% suit with wide lapels and palazzo trousers"],
+["Gilet","Trois-pièces, gilet assorti.","a %C% %M% three-piece — a waistcoat worn with matching jacket and trousers"]],
+maille:[
+["Col roulé","Fin, coupe moulante.","a fine close-fitting %C% %M% roll neck"],
+["Torsades","Grosses torsades, col bateau large.","a %C% %M% cable-knit sweater with a wide boat neck"],
+["Cardigan","Boutonné, porté seul, col V profond.","a %C% %M% buttoned cardigan worn on its own with a deep V neckline"],
+["Robe pull","Col cheminée, longueur mi-mollet.","a %C% %M% sweater dress with a funnel neck, mid-calf"],
+["Débardeur","Côtelé, bretelles larges.","a %C% %M% ribbed sleeveless tank with wide straps"],
+["Ajouré","Maille ouverte portée sur un fond fluide.","an open-work %C% %M% knit worn over a plain slip"],
+["Oversize","Épaules tombantes, porté seul.","an oversized %C% %M% sweater with dropped shoulders, worn on its own"],
+["Twin-set","Caraco fin et cardigan assorti.","a %C% %M% twin-set — a fine shell with a matching cardigan"],
+["Deux-pièces","Brassière et jupe longue en maille.","a %C% %M% knitted two-piece — a bralette with a long matching skirt"],
+["Poncho","Grand carré, bord roulotté.","a %C% %M% knitted poncho with a rolled edge"]],
+pantalon:[
+["Pinces","Large à pinces, taille haute.","high-waisted pleated %C% %M% wide-leg trousers"],
+["Cigarette","Étroit, cheville découverte.","narrow %C% %M% cigarette trousers cropped at the ankle"],
+["Fuseau","Sous-pied, porté en botte haute.","tapered %C% %M% stirrup trousers worn with tall boots"],
+["Palazzo","Balaye le sol, taille plate.","floor-sweeping %C% %M% palazzo trousers with a flat waistband"],
+["Cargo","Poches soufflet, bas resserré.","%C% %M% cargo trousers with bellows pockets and a drawstring hem"],
+["Sept-huitième","Coupe droite, pli marqué au fer.","straight %C% %M% seven-eighths trousers with a sharply pressed crease"],
+["Flare","Ajusté au genou puis très ouvert.","%C% %M% flared trousers, fitted to the knee then opening wide"],
+["Taille basse","Droit, porté avec un haut court.","low-rise straight %C% %M% trousers worn with a cropped top"],
+["Jupe-culotte","Au genou, pli profond devant.","%C% %M% culottes cut to the knee with a deep front pleat"],
+["Short","Taille haute, revers.","high-waisted %C% %M% tailored shorts with turn-ups"]],
+jupe:[
+["Crayon","Sous le genou, fente arrière.","a %C% %M% pencil skirt below the knee with a back slit"],
+["Plissée","Midi, taille plate.","a %C% %M% pleated midi skirt with a flat waistband"],
+["Portefeuille","Croisée, fente profonde devant.","a %C% %M% wrap skirt with a deep front slit"],
+["Trapèze","Midi évasée, ceinture fine.","an A-line %C% %M% midi skirt with a slim belt"],
+["Ample","Longue, grand volume, poches dissimulées.","a full-volume %C% %M% maxi skirt with concealed pockets"],
+["Courte","Droite, au-dessus du genou.","a short straight %C% %M% skirt ending above the knee"],
+["Godets","S'évase depuis la hanche.","a %C% %M% skirt with godet panels flaring from the hip"],
+["Asymétrique","Courte devant, longue derrière.","an asymmetric %C% %M% skirt, short at the front and long at the back"],
+["Fendue","Longue, fente latérale jusqu'à la cuisse.","a long %C% %M% skirt with a high side slit to the thigh"],
+["Corsetée","Froncée sur une large ceinture.","a %C% %M% skirt gathered onto a wide corseted waistband"]],
+blouse:[
+["Popeline","Col officier, poignets larges.","a crisp %C% %M% shirt with a band collar and deep cuffs"],
+["Lavallière","Nœud souple au col.","a %C% %M% blouse with a pussy-bow tie at the neck"],
+["Oversize","Manches roulées jusqu'au coude.","an oversized %C% %M% shirt with sleeves rolled to the elbow"],
+["Ballon","Manches ballon, col largement ouvert.","a %C% %M% blouse with balloon sleeves and a wide open collar"],
+["Jabot","Jabot souple retombant.","a %C% %M% blouse with a soft falling jabot"],
+["Transparente","Portée sur un caraco uni.","a sheer %C% %M% blouse worn over a plain camisole"],
+["Dos noué","Dos ouvert fermé par un nœud.","a %C% %M% blouse fastened by a bow at the open back"],
+["Caraco","Coupé en biais, bretelles fines.","a bias-cut %C% %M% camisole with fine straps"],
+["Mousquetaire","Poignets doubles, col pointu.","a %C% %M% shirt with double french cuffs and a pointed collar"],
+["Cape","Manches cape tombant de l'épaule.","a %C% %M% top with cape sleeves falling from the shoulder"]],
+robe:[
+["Chemisier","Boutonnée sur toute la hauteur, ceinture assortie.","a %C% %M% button-through shirt dress with a self-belt"],
+["Droite","Manches longues, ceinture fine.","a straight %C% %M% dress with long sleeves and a narrow belt"],
+["Portefeuille","V profond, taille nouée.","a %C% %M% wrap dress with a deep V and a tie waist"],
+["Trapèze","Col rond, manches courtes.","an A-line %C% %M% dress with a round neck and short sleeves"],
+["Seconde peau","Moulante, col montant, mi-mollet.","a body-skimming %C% %M% dress with a high neck, mid-calf"],
+["Bateau","Encolure bateau, manches trois-quarts.","a %C% %M% dress with a boat neckline and three-quarter sleeves"],
+["Asymétrique","Encolure oblique, une épaule dégagée.","a %C% %M% dress with an asymmetric neckline, one shoulder bare"],
+["Dos nu","Dos ouvert noué, longueur genou.","a straight knee-length %C% %M% dress with an open tie back"],
+["Tablier","Portée sur une chemise fine.","a %C% %M% pinafore dress worn over a fine shirt"],
+["Longue","Col haut, manches longues, cheville.","a floor-length %C% %M% day dress with long sleeves and a high neck"]],
+cuir:[
+["Blouson","Court, zip argent.","a cropped %C% %M% blouson with a silver zip"],
+["Perfecto","Zip asymétrique, revers crantés.","a %C% %M% biker jacket with an asymmetric zip and notched lapels"],
+["Manteau","Ceinturé, revers larges.","a long belted %C% %M% coat with wide lapels"],
+["Jupe","Au genou, ceinture large ton sur ton.","a %C% %M% skirt to the knee with a wide tonal belt"],
+["Pantalon","Coupe droite, taille haute.","straight high-waisted %C% %M% trousers"],
+["Robe","Portefeuille, ourlet asymétrique.","a %C% %M% wrap dress with an asymmetric hem"],
+["Trench","Longueur cheville, ceinture large.","an ankle-length %C% %M% trench with a wide belt"],
+["Gilet","Sans manches, porté ouvert.","a sleeveless %C% %M% waistcoat worn open"],
+["Short","Taille haute, ceinture ton sur ton.","high-waisted %C% %M% shorts with a tonal belt"],
+["Chemise","Col pointu, boutons pression.","a %C% %M% shirt with a pointed collar and press studs"]],
+soir:[
+["Fourreau","Bretelles fines, dos entièrement nu.","a %C% %M% slip gown with fine straps and a completely bare back"],
+["Bustier","Sans bretelles, jupe ample sculptée.","a %C% %M% strapless gown with a sculpted full skirt"],
+["Une épaule","Drapée sur une seule épaule.","a floor-length %C% %M% gown draped over one shoulder"],
+["Biais","Coupée dans le biais, dos nu profond.","a bias-cut %C% %M% gown with a deep open back"],
+["Colonne","Col haut, manches longues, ligne droite.","a %C% %M% column gown with long sleeves and a high neck"],
+["Cape","Cape attachée aux épaules balayant le sol.","a %C% %M% gown with a floor-sweeping cape attached at the shoulders"],
+["Traîne","Dos ouvert, traîne courte.","a %C% %M% gown with an open back and a short train"],
+["Plissé soleil","Buste ajusté, jupe plissée rayonnante.","a %C% %M% gown with a fitted bodice and a sunburst-pleated skirt"],
+["Fendue","Encolure licou, fente jusqu'à la cuisse.","a long %C% %M% gown with a halter neck and a slit to the thigh"],
+["Brodée","Entièrement brodée ton sur ton.","a %C% %M% gown covered in tone-on-tone embroidery, with long fitted sleeves"]],
+manifeste:[
+["Monochrome","Silhouette entière dans une seule teinte saturée.","a saturated head-to-toe %C% look — jacket, top and trousers in one single colour"],
+["Combinaison","Une pièce, ceinture large.","a single-colour %C% %M% jumpsuit with a wide belt"],
+["Cape","Portée sur un pantalon assorti.","a %C% %M% cape worn over matching trousers"],
+["Superposition","Tunique longue sur pantalon sur jupe.","a layered %C% %M% look — a long tunic over trousers over a skirt"],
+["Volume","Épaules sculptées, proportions exagérées.","an exaggerated-volume %C% %M% silhouette with sculpted shoulders"],
+["Ton sur ton","Ensemble brodé, veste courte et jupe longue.","a tone-on-tone embroidered %C% %M% set — a cropped jacket with a long skirt"],
+["Transparence","Voile posé sur un fond opaque.","a sheer %C% %M% overlay worn over an opaque underdress"],
+["Corset","Buste baleiné sur jupe ample.","a %C% %M% corseted look with a boned bodice over a full skirt"],
+["Drapé","Entièrement drapé, épinglé à la hanche.","a %C% %M% look entirely draped and pinned at one hip"],
+["Cocon","Enveloppe le corps du cou à la cheville.","a %C% %M% cocoon silhouette enveloping the body from neck to ankle"]]
+};
+
+/* matière par saison et par famille */
+const MATIERES = {
+printemps:{manteau:"cotton gabardine",tailleur:"lightweight wool canvas",maille:"combed cotton",pantalon:"fine wool",jupe:"crepe",blouse:"poplin",robe:"crepe",cuir:"supple lambskin",soir:"silk satin",manifeste:"pleated organza"},
+ete:{manteau:"washed linen",tailleur:"linen-silk",maille:"open cotton knit",pantalon:"cotton voile",jupe:"crepe de chine",blouse:"washed silk",robe:"poplin",cuir:"perforated leather",soir:"silk jersey",manifeste:"crochet knit"},
+automne:{manteau:"wool melton",tailleur:"flannel",maille:"ribbed wool",pantalon:"corduroy",jupe:"flannel",blouse:"printed silk",robe:"fine knit",cuir:"supple leather",soir:"velvet",manifeste:"low-pile shearling"},
+hiver:{manteau:"double-faced cashmere",tailleur:"cold wool",maille:"cashmere",pantalon:"heavy wool",jupe:"silk velvet",blouse:"heavy silk",robe:"wool",cuir:"patent leather",soir:"duchess satin",manifeste:"mohair"}
+};
+
+const REGLAGES = [
+  {cle:"cadrage", titre:"Cadrage", opts:[
+    {l:"Plein pied", v:"Full-body shot"},
+    {l:"Trois-quarts", v:"Three-quarter length shot"},
+    {l:"Détail matière", v:"Extreme close-up on the fabric texture and construction"},
+    {l:"Mouvement", v:"Full-body shot mid-stride, fabric in motion"}]},
+  {cle:"ambiance", titre:"Ambiance", opts:[
+    {l:"Podium", v:"walking a runway during a fashion show, dark auditorium, hard frontal spotlight"},
+    {l:"Extérieur", v:"on a city street in flat overcast daylight, blurred urban background"}]},
+  {cle:"outil", titre:"Générateur", opts:[
+    {l:"ChatGPT", v:""},
+    {l:"Midjourney", v:" --ar 4:5 --style raw --v 7"}]}
+];
+
+const SIGNATURE = " House signature, applied wherever the garment allows: a high stand-up funnel collar, sharply squared shoulders, and a slim silver chain belt worn low with a small medallion drop.";
+const QUEUE = " Same model and same photographic treatment across the whole family. Medium format, 85mm, natural film grain, true soft colour, razor-sharp fabric detail, photorealistic, editorial.";
+
+/* ---------- collection d'archive : Cendres & Velours ---------- */
+const CENDRES = {
+  nom:"Cendres & Velours",
+  chapeau:"Automne-hiver — huit silhouettes, d'après le vocabulaire Lagerfeld.",
+  source:"Collection d'archive — palette propre, hors rapports de tendance",
+  palette:[
+    ["Bordeaux","#6E2029","deep bordeaux"],
+    ["Gris perle","#8E8C88","pearl grey"],
+    ["Noir encre","#17171A","ink black"],
+    ["Blanc craie","#EFEBE3","chalk white"],
+    ["Tweed sombre","#4A2128","dark bordeaux-and-black bouclé"],
+    ["Argent","#B9BAB8","silver"]
+  ],
+  looks:[
+    {n:"Iconique",k:0,fr:"Deux-pièces en crêpe de laine, haut long et droit sur jupe portefeuille, col blanc contrastant, chaîne argent basse sur les hanches.",
+     en:"a %C% wool-crepe two-piece — a long straight top over a wrap skirt, with a high white contrasting collar and a silver chain belt low on the hips"},
+    {n:"Tweed Rebelle",k:4,fr:"Tailleur jupe en tweed bouclé, col montant, épaules carrées, ceinture chaîne à médaillon.",
+     en:"a %C% bouclé tweed skirt suit with a high stand collar, squared shoulders and a chain belt with a medallion drop"},
+    {n:"Colonne",k:1,fr:"Robe-manteau en flanelle, col cheminée haut, épaules nettes, coutures sculptées, longue fente devant.",
+     en:"a %C% wool-flannel coat dress with a high funnel collar, sharply squared shoulders, sculpted waist seams and a long front slit"},
+    {n:"Guipure",k:2,fr:"Tailleur jupe, devant de veste entièrement couvert de passementerie soutache, col montant, chaîne argent.",
+     en:"a %C% wool skirt suit, the jacket front entirely covered in soutache passementerie loops, with a stand collar and a silver chain belt"},
+    {n:"Nappa",k:0,fr:"Robe-manteau en cuir nappa, col cheminée zippé, épaules carrées, poches à rabat, chaîne argent.",
+     en:"a %C% nappa leather coat dress with a high zipped funnel collar, squared shoulders, flap pockets and a silver chain belt"},
+    {n:"Craie",k:3,fr:"Manteau en drap de laine, col montant, épaules carrées, poches à rabat, fine chaîne à la taille.",
+     en:"a %C% wool-melton coat with a high stand collar, squared shoulders, flap pockets and a fine chain belt at the waist"},
+    {n:"Velours",k:2,fr:"Deux-pièces en velours de soie, veste ajustée à col haut sur jupe étroite fendue devant.",
+     en:"a %C% silk-velvet two-piece — a fitted high-collared jacket over a slim skirt with a front slit, with a silver chain belt"},
+    {n:"Finale",k:0,fr:"Robe drapée en jersey de soie, une seule épaule, manche longue unique, drapé retenu à la hanche, fente haute.",
+     en:"a draped %C% silk-jersey one-shoulder gown with a single long sleeve, gathered at the hip with a silver chain belt and a high thigh slit"}
+  ]
+};
+
+/* ===================== ÉTAT ===================== */
+const etat = {annee:"2026", saison:"printemps", famille:"manteau", cadrage:0, ambiance:0, outil:0, admin:false, ouvert:null};
+const EXISTE = {};
+const EMPREINTE_CODE = 2088330966;  /* code atelier : 2627 */
+const TOTAL = 4 * 10 * 10;
+
+function fam(cleF){ return FAMILLES.find(f=>f.cle===cleF); }
+function sais(cleS){ return SAISONS.find(s=>s.cle===cleS); }
+function estCendres(){ return etat.annee === "cendres"; }
+function nbPieces(){ return estCendres() ? CENDRES.looks.length : 10; }
+
+function fichier(s, f, i){
+  if (s === "cendres") return "img/cendres-" + String(i+1).padStart(2,"0") + ".jpg";
+  return "img/2026-" + s + "-" + f + "-" + String(i+1).padStart(2,"0") + ".jpg";
+}
+function teinte(s, f, i){
+  if (s === "cendres") return CENDRES.palette[CENDRES.looks[i].k];
+  return PALETTES[s].t[(i + fam(f).off) % 6];
+}
+function piece(s, f, i){
+  if (s === "cendres"){
+    const l = CENDRES.looks[i];
+    return {nom:l.n, desc:l.fr, en:l.en};
+  }
+  const d = DECLINAISONS[f][i];
+  return {nom:d[0], desc:d[1], en:d[2]};
+}
+
+function empreinte(x){ let h=5381; for(let i=0;i<x.length;i++) h=((h*33)+x.charCodeAt(i))>>>0; return h; }
+
+function construire(s, f, i){
+  const p = piece(s, f, i);
+  const t = teinte(s, f, i);
+  const cad = REGLAGES[0].opts[etat.cadrage].v;
+  const amb = REGLAGES[1].opts[etat.ambiance].v;
+  const suf = REGLAGES[2].opts[etat.outil].v;
+
+  if (s === "cendres"){
+    return "[CENDRES & VELOURS — LOOK " + String(i+1).padStart(2,"0") + " · " + p.nom.toUpperCase() + "] " +
+           cad + " of a model wearing " + p.en.replace("%C%", t[2]) + ", " + amb + "." + QUEUE + suf;
+  }
+  const m = MATIERES[s][f];
+  return "[2026 " + sais(s).nom.toUpperCase() + " · " + fam(f).nom.toUpperCase() +
+         " " + String(i+1).padStart(2,"0") + " — " + p.nom.toUpperCase() + "] " +
+         cad + " of a model wearing " + p.en.replace("%C%", t[2]).replace("%M%", m) +
+         ", " + amb + "." + SIGNATURE + QUEUE + suf;
+}
+
+function charte(s, f){
+  const amb = REGLAGES[1].opts[etat.ambiance].v;
+  const cam = "CAMERA: medium format, 85mm, f/4, natural film grain, true soft colour, vertical 4:5 framing.\n\n";
+  const mod = "MODEL: the same model throughout \u2014 mid-twenties, hair pulled back flat, bare skin, minimal makeup, level gaze, no smile.\n";
+
+  if (s === "cendres"){
+    return "SERIES BRIEF \u2014 Cendres & Velours\n\n" +
+      "You are shooting an eight-look autumn-winter collection. Keep everything below identical across all eight images.\n\n" +
+      mod + "SET: identical in every image \u2014 " + amb + ".\n" +
+      "HOUSE SIGNATURE, present on every look: a high stand-up funnel collar, sharply squared shoulders, and a slim silver chain belt worn low with a small medallion drop.\n" +
+      "PALETTE: only these shades \u2014 " + CENDRES.palette.map(t=>t[2]).join(", ") + ". No other colour anywhere.\n" + cam +
+      "Confirm you have this brief, then wait for LOOK 01.";
+  }
+  return "SERIES BRIEF \u2014 2026 " + sais(s).nom + " \u00b7 " + fam(f).nom + "\n\n" +
+    "You are shooting ten variations of one garment family for a single women's collection. Keep everything below identical across all ten images.\n\n" +
+    mod + "SET: identical in every image \u2014 " + amb + ".\n" +
+    "HOUSE SIGNATURE, applied wherever the garment allows: a high stand-up funnel collar, sharply squared shoulders, and a slim silver chain belt worn low with a small medallion drop.\n" +
+    "FABRIC: " + MATIERES[s][f] + " for the whole family.\n" +
+    "PALETTE: only these six shades \u2014 " + PALETTES[s].t.map(t=>t[2]).join(", ") + ". No other colour anywhere.\n" + cam +
+    "Confirm you have this brief, then wait for piece 01.";
+}
+
+/* ===================== RENDU ===================== */
+function majAnnees(){
+  const el = document.getElementById("annees");
+  el.innerHTML = "";
+  [{cle:"2026",nom:"2026"},{cle:"2027",nom:"2027"},{cle:"cendres",nom:"CENDRES"}].forEach(it=>{
+    const b = document.createElement("button");
+    b.type = "button"; b.innerHTML = '<i class="led"></i>' + it.nom;
+    b.setAttribute("aria-pressed", it.cle === etat.annee);
+    b.onclick = ()=>{ etat.annee = it.cle; majTout(); };
+    el.appendChild(b);
+  });
+}
+
+function majSaisons(){
+  const el = document.getElementById("saisons");
+  el.innerHTML = "";
+  SAISONS.forEach(s=>{
+    const b = document.createElement("button");
+    b.type = "button"; b.innerHTML = '<i class="led"></i>' + s.nom;
+    b.setAttribute("aria-pressed", s.cle === etat.saison);
+    b.onclick = ()=>{ etat.saison = s.cle; majTout(); };
+    el.appendChild(b);
+  });
+}
+
+function familleComplete(f){
+  for (let i=0;i<10;i++) if (!EXISTE[fichier(etat.saison, f, i)]) return false;
+  return true;
+}
+
+function majFamilles(){
+  const el = document.getElementById("familles");
+  el.innerHTML = "";
+  FAMILLES.forEach(f=>{
+    const b = document.createElement("button");
+    b.className = "fam"; b.type = "button";
+    b.innerHTML = '<i class="led"></i>' + f.nom + '<i class="pt" data-cle="' + f.cle + '"></i>';
+    b.setAttribute("aria-pressed", f.cle === etat.famille);
+    b.onclick = ()=>{ etat.famille = f.cle; majTout(); };
+    el.appendChild(b);
+  });
+  majPastilles();
+}
+
+function majOnglets(){ majAnnees(); majSaisons(); majFamilles(); }
+
+function majPastilles(){
+  const el = document.getElementById("familles");
+  if (!el || estCendres()) return;
+  el.querySelectorAll(".pt").forEach(p=>{
+    p.classList.toggle("plein", familleComplete(p.dataset.cle));
+  });
+}
+
+function majPalette(){
+  const el = document.getElementById("palette");
+  el.innerHTML = "";
+  const src = estCendres() ? CENDRES.palette : PALETTES[etat.saison].t;
+  src.forEach(t=>{
+    const d = document.createElement("div");
+    d.className = "teinte";
+    d.innerHTML = '<i style="background:'+t[1]+'"></i>' + t[0];
+    el.appendChild(d);
+  });
+  document.getElementById("source").textContent = estCendres()
+    ? CENDRES.source
+    : PALETTES[etat.saison].source + " \u2014 mati\u00e8re de la famille : " + MATIERES[etat.saison][etat.famille];
+}
+
+function majGrille(){
+  const s = estCendres() ? "cendres" : etat.saison;
+  const f = etat.famille;
+  const g = document.getElementById("grille");
+  g.innerHTML = "";
+  for (let i=0;i<nbPieces();i++){
+    const p = piece(s, f, i);
+    const src = fichier(s, f, i);
+    const t = teinte(s, f, i);
+    const etiq = estCendres() ? "Look " + String(i+1).padStart(2,"0")
+                              : fam(f).nom + " " + String(i+1).padStart(2,"0");
+    const b = document.createElement("button");
+    b.className = "carte"; b.type = "button";
+    b.innerHTML =
+      '<div class="vignette"><div class="vide"><i></i><span>' + String(i+1).padStart(2,"0") + '</span></div></div>' +
+      '<div class="legende">' +
+        '<div class="cat"><span>' + etiq + '</span><i style="background:'+t[1]+'"></i></div>' +
+        '<div class="nom">' + p.nom + '</div>' +
+        '<div class="fichier">' + src + '</div>' +
+      '</div>';
+    const vg = b.querySelector(".vignette");
+    const im = new Image();
+    im.onload = (function(vg, src, nom){ return function(){
+      EXISTE[src] = true;
+      const tag = document.createElement("img");
+      tag.src = src; tag.alt = nom; tag.loading = "lazy";
+      vg.innerHTML = ""; vg.appendChild(tag);
+      majCompteur(); majPastilles();
+    };})(vg, src, p.nom);
+    im.onerror = (function(src){ return function(){ EXISTE[src] = false; majCompteur(); majPastilles(); };})(src);
+    im.src = src;
+    b.onclick = (function(k){ return function(){ ouvrirFiche(k); };})(i);
+    g.appendChild(b);
+  }
+}
+
+function majCompteur(){
+  const c = document.getElementById("compteur");
+  const j = document.getElementById("jaugeBarre");
+  if (estCendres()){
+    let n = 0;
+    for (let i=0;i<CENDRES.looks.length;i++) if (EXISTE[fichier("cendres", null, i)]) n++;
+    if (c) c.innerHTML = n + " / 8 <small>Cendres &amp; Velours</small>";
+    if (j) j.style.width = (n/8*100) + "%";
+    return;
+  }
+  let nFam = 0, nSai = 0, nTot = 0;
+  for (let i=0;i<10;i++) if (EXISTE[fichier(etat.saison, etat.famille, i)]) nFam++;
+  FAMILLES.forEach(f=>{ for (let i=0;i<10;i++) if (EXISTE[fichier(etat.saison, f.cle, i)]) nSai++; });
+  Object.keys(EXISTE).forEach(k=>{ if (EXISTE[k] && k.indexOf("cendres") === -1) nTot++; });
+  if (c) c.innerHTML = nFam + " / 10 <small>cette famille &nbsp;\u00b7&nbsp; " + nSai +
+    " / 100 cette saison &nbsp;\u00b7&nbsp; " + nTot + " / " + TOTAL + " au total</small>";
+  if (j) j.style.width = (nFam*10) + "%";
+}
+
+function ouvrirFiche(i){
+  const s = estCendres() ? "cendres" : etat.saison;
+  const f = etat.famille;
+  const p = piece(s, f, i);
+  const t = teinte(s, f, i);
+  const src = fichier(s, f, i);
+  etat.ouvert = i;
+
+  const zi = document.getElementById("fImg");
+  zi.innerHTML = "";
+  if (EXISTE[src]){
+    const tag = document.createElement("img"); tag.src = src; tag.alt = p.nom; zi.appendChild(tag);
+  } else {
+    zi.innerHTML = '<div class="vide"><i></i><span>image absente</span></div>';
+  }
+  document.getElementById("fNom").textContent = p.nom;
+  document.getElementById("fMeta").textContent = estCendres()
+    ? "Look " + String(i+1).padStart(2,"0") + " \u00b7 Cendres & Velours \u00b7 " + t[0]
+    : fam(f).nom + " " + String(i+1).padStart(2,"0") + " \u00b7 " + sais(s).nom + " 2026 \u00b7 " + t[0] + " \u00b7 " + MATIERES[s][f];
+  document.getElementById("fDesc").textContent = p.desc;
+  document.getElementById("fFichier").textContent = src;
+  document.getElementById("fPrompt").textContent = construire(s, f, i);
+  document.getElementById("voile").classList.add("ouvert");
+  window.scrollTo(0,0);
+}
+
+function majTout(){
+  const futur = etat.annee === "2027";
+  const arch  = estCendres();
+  document.getElementById("zoneSaison").style.display = futur ? "none" : "";
+  document.getElementById("avenir").classList.toggle("ouvert", futur);
+  document.getElementById("saisons").style.display  = arch ? "none" : "";
+  document.getElementById("familles").style.display = arch ? "none" : "";
+  document.getElementById("dlSaison").style.display = arch ? "none" : "";
+  document.getElementById("dlTout").style.display   = arch ? "none" : "";
+  document.getElementById("verifier").style.display = arch ? "none" : "";
+  document.getElementById("dlFamille").textContent  = arch ? "Prompts des 8 looks" : "Prompts de la famille";
+  majOnglets();
+  if (futur) return;
+  majPalette(); majGrille(); majCompteur();
+}
+
+/* réglages atelier */
+const elReg = document.getElementById("reglages");
+REGLAGES.forEach(r=>{
+  const bloc = document.createElement("div"); bloc.className = "reglage";
+  const t = document.createElement("span"); t.textContent = r.titre; bloc.appendChild(t);
+  const p = document.createElement("div"); p.className = "groupe";
+  r.opts.forEach((o,i)=>{
+    const b = document.createElement("button");
+    b.className = "onglet"; b.type = "button"; b.innerHTML = '<i class="led"></i>' + o.l;
+    b.setAttribute("aria-pressed", i===0);
+    b.onclick = ()=>{
+      etat[r.cle] = i;
+      [...p.children].forEach((x,j)=> x.setAttribute("aria-pressed", j===i));
+      if (etat.ouvert !== null) ouvrirFiche(etat.ouvert);
+    };
+    p.appendChild(b);
+  });
+  bloc.appendChild(p); elReg.appendChild(bloc);
+});
+
+/* ===================== OUTILS ===================== */
+function flash(b, mot){
+  const init = b.dataset.init || b.textContent;
+  b.dataset.init = init; b.textContent = mot;
+  clearTimeout(b._t); b._t = setTimeout(()=>{ b.textContent = b.dataset.init; }, 2400);
+}
+function copieDirecte(texte){
+  const z = document.createElement("textarea");
+  z.value = texte; z.setAttribute("readonly","");
+  z.style.position="fixed"; z.style.top="0"; z.style.left="0";
+  z.style.width="1px"; z.style.height="1px"; z.style.opacity="0";
+  document.body.appendChild(z); z.focus(); z.setSelectionRange(0, texte.length);
+  let ok=false; try{ ok = document.execCommand("copy"); }catch(e){}
+  document.body.removeChild(z); return ok;
+}
+function copier(texte, b, motOk){
+  if (copieDirecte(texte)) { flash(b, motOk); return; }
+  if (navigator.clipboard) navigator.clipboard.writeText(texte).then(()=>flash(b,motOk), ()=>flash(b,"Copie bloquée"));
+  else flash(b, "Copie bloquée");
+}
+function telecharger(nom, contenu, b, motOk){
+  const blob = new Blob([contenu], {type:"text/plain;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = nom;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=> URL.revokeObjectURL(url), 1500);
+  if (b) flash(b, motOk);
+}
+function texteFamille(s, f){
+  const n = (s === "cendres") ? CENDRES.looks.length : 10;
+  let x = charte(s, f) + "\n\n" + "=".repeat(56) + "\n\n";
+  for (let i=0;i<n;i++){
+    x += construire(s, f, i) + "\n  \u2192 enregistrer sous : " + fichier(s, f, i) + "\n\n";
+  }
+  return x;
+}
+function texteSaison(s){
+  let x = "";
+  FAMILLES.forEach(f=>{
+    x += "\n" + "#".repeat(56) + "\n2026 " + sais(s).nom.toUpperCase() + " — " + f.nom.toUpperCase() + "\n" + "#".repeat(56) + "\n\n";
+    x += texteFamille(s, f.cle);
+  });
+  return x;
+}
+
+/* ===================== CADENAS ===================== */
+const zoneCode = document.getElementById("zoneCode");
+document.getElementById("cadenas").onclick = function(){
+  if (etat.admin){
+    etat.admin = false;
+    document.body.classList.remove("admin");
+    this.classList.remove("ouvert"); this.innerHTML = "&#9737;";
+    return;
+  }
+  zoneCode.classList.toggle("ouvert");
+  if (zoneCode.classList.contains("ouvert")) document.getElementById("saisieCode").focus();
+};
+document.getElementById("annuler").onclick = ()=>{
+  zoneCode.classList.remove("ouvert");
+  document.getElementById("saisieCode").value = "";
+};
+function tenter(){
+  const v = document.getElementById("saisieCode").value.trim();
+  if (empreinte(v) === EMPREINTE_CODE){
+    etat.admin = true;
+    document.body.classList.add("admin");
+    const c = document.getElementById("cadenas");
+    c.classList.add("ouvert"); c.innerHTML = "&#9673;";
+    zoneCode.classList.remove("ouvert");
+    document.getElementById("saisieCode").value = "";
+    majCompteur(); majPastilles();
+  } else {
+    flash(document.getElementById("valider"), "Refusé");
+    document.getElementById("saisieCode").value = "";
+  }
+}
+document.getElementById("valider").onclick = tenter;
+document.getElementById("saisieCode").addEventListener("keydown", e=>{ if (e.key === "Enter") tenter(); });
+
+/* ===================== ACTIONS ATELIER ===================== */
+document.getElementById("dlFamille").onclick = function(){
+  if (estCendres()){
+    telecharger("prompts-cendres-velours.txt", texteFamille("cendres", null), this, "Fichier généré");
+    return;
+  }
+  telecharger("prompts-2026-" + etat.saison + "-" + etat.famille + ".txt",
+              texteFamille(etat.saison, etat.famille), this, "Fichier généré");
+};
+document.getElementById("dlSaison").onclick = function(){
+  telecharger("prompts-2026-" + etat.saison + ".txt", texteSaison(etat.saison), this, "Fichier généré");
+};
+document.getElementById("dlTout").onclick = function(){
+  let x = "MÉRIDIENNE 2026 — 400 prompts\n";
+  SAISONS.forEach(s=>{ x += "\n\n" + "*".repeat(56) + "\n" + s.nom.toUpperCase() + "\n" + "*".repeat(56) + "\n" + texteSaison(s.cle); });
+  telecharger("meridienne-2026-400-prompts.txt", x, this, "Fichier généré");
+};
+document.getElementById("dlIndex").onclick = function(){
+  let x = "", ok = 0, tot = 0;
+  SAISONS.forEach(s=>{
+    x += "\n\n2026 " + s.nom.toUpperCase() + "\n";
+    FAMILLES.forEach(f=>{
+      x += "\n  " + f.nom + "\n";
+      DECLINAISONS[f.cle].forEach((d,i)=>{
+        const fi = fichier(s.cle, f.cle, i);
+        const e = EXISTE[fi]; tot++; if (e) ok++;
+        x += "    " + (e === true ? "[x]" : e === false ? "[ ]" : "[?]") + " " + fi + "   " + d[0] + "\n";
+      });
+    });
+  });
+  x = "INDEX DES IMAGES — " + new Date().toLocaleString("fr-FR") +
+      "\nPrésentes : " + ok + " / " + tot + "   ([?] = non encore vérifiée)\n" + x;
+  telecharger("index-images-2026.txt", x, this, "Index généré");
+};
+document.getElementById("verifier").onclick = function(){
+  const b = this;
+  const liste = [];
+  SAISONS.forEach(s=> FAMILLES.forEach(f=>{
+    for (let i=0;i<10;i++){
+      const fi = fichier(s.cle, f.cle, i);
+      if (EXISTE[fi] === undefined) liste.push(fi);
+    }
+  }));
+  if (!liste.length){ flash(b, "Index à jour"); return; }
+  flash(b, "Vérification…");
+  let idx = 0, actifs = 0, faits = 0;
+  const LOT = 20;
+  function suivant(){
+    while (actifs < LOT && idx < liste.length){
+      const fi = liste[idx++]; actifs++;
+      const im = new Image();
+      const fin = val=>{
+        EXISTE[fi] = val; actifs--; faits++;
+        if (faits % 20 === 0 || faits === liste.length){ majCompteur(); majPastilles(); }
+        if (faits === liste.length) flash(b, "Index à jour"); else suivant();
+      };
+      im.onload = ()=> fin(true);
+      im.onerror = ()=> fin(false);
+      im.src = fi;
+    }
+  }
+  suivant();
+};
+
+document.getElementById("fCopier").onclick = function(){
+  copier(construire(estCendres() ? "cendres" : etat.saison, etat.famille, etat.ouvert), this, "Prompt copié");
+};
+document.getElementById("fTelecharger").onclick = function(){
+  const s2 = estCendres() ? "cendres" : etat.saison;
+  const nom = estCendres()
+    ? "prompt-cendres-" + String(etat.ouvert+1).padStart(2,"0") + ".txt"
+    : "prompt-2026-" + etat.saison + "-" + etat.famille + "-" + String(etat.ouvert+1).padStart(2,"0") + ".txt";
+  telecharger(nom, construire(s2, etat.famille, etat.ouvert), this, "Fichier généré");
+};
+document.getElementById("fPrec").onclick = ()=> ouvrirFiche((etat.ouvert - 1 + nbPieces()) % nbPieces());
+document.getElementById("fSuiv").onclick = ()=> ouvrirFiche((etat.ouvert + 1) % nbPieces());
+document.getElementById("fFermer").onclick = ()=>{
+  document.getElementById("voile").classList.remove("ouvert");
+  etat.ouvert = null;
+};
+document.addEventListener("keydown", e=>{
+  if (!document.getElementById("voile").classList.contains("ouvert")) return;
+  if (e.key === "Escape") document.getElementById("fFermer").click();
+  if (e.key === "ArrowLeft") document.getElementById("fPrec").click();
+  if (e.key === "ArrowRight") document.getElementById("fSuiv").click();
+});
+
+const SOUS = document.querySelector(".sous");
+const SOUS_INIT = SOUS.textContent;
+const majSous = ()=>{ SOUS.textContent = estCendres() ? CENDRES.chapeau : SOUS_INIT; };
+const _majTout = majTout;
+majTout = function(){ _majTout(); majSous(); };
+
+majTout();
+</script>
+</body>
+</html>
