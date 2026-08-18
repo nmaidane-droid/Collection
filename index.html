@@ -176,6 +176,10 @@ body.admin .panneau{display:block}
 .jauge{height:3px;background:rgba(17,17,19,.1);margin:12px 0 18px}
 .jauge i{display:block;height:100%;background:var(--accent);width:0;transition:width .4s}
 .reglage{margin-bottom:13px}
+.rappel{
+  font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--accent);margin:2px 0 0;
+}
 .reglage>span{display:block;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--gris);margin-bottom:6px}
 .groupe{display:flex;flex-wrap:wrap;gap:6px}
 .onglet{
@@ -473,8 +477,13 @@ const REGLAGES = [
     {l:"Détail matière", v:"Extreme close-up on the fabric texture and construction"},
     {l:"Mouvement", v:"Full-body shot mid-stride, fabric in motion"}]},
   {cle:"ambiance", titre:"Ambiance", opts:[
-    {l:"Podium", v:"walking a runway during a fashion show, dark auditorium, hard frontal spotlight"},
-    {l:"Extérieur", v:"on a city street in flat overcast daylight, blurred urban background"}]},
+    {l:"Extérieur", v:null, fr:"décor extérieur choisi selon la saison", saison:{
+      printemps:"on a city street in clear spring daylight, pale open sky, early foliage on the trees, blurred urban background",
+      ete:"on a sunlit seaside promenade in high summer, hard midday light, white walls and blurred palms",
+      automne:"on a city street strewn with fallen leaves, low golden autumn light, blurred urban background",
+      hiver:"on a cold wet city street in winter, flat grey light, damp pavement reflections, blurred urban background"}},
+    {l:"Podium", v:"walking a runway during a fashion show, dark auditorium, hard frontal spotlight",
+     fr:"podium, salle sombre, projecteur frontal"}]},
   {cle:"outil", titre:"Générateur", opts:[
     {l:"ChatGPT", v:""},
     {l:"Midjourney", v:" --ar 4:5 --style raw --v 7"}]}
@@ -543,11 +552,29 @@ function piece(s, f, i){
   return {nom:d[0], desc:d[1], en:d[2]};
 }
 
+const DECOR_FR = {
+  printemps:"rue de ville, lumière claire de printemps",
+  ete:"front de mer, plein soleil d'été",
+  automne:"rue jonchée de feuilles, lumière basse dorée",
+  hiver:"rue froide et humide, lumière grise"
+};
+
+/* l'ambiance Extérieur suit la saison ; Cendres & Velours est une collection d'hiver */
+function saisonDecor(s){ return (s === "cendres") ? "hiver" : s; }
+function ambianceDe(s){
+  const o = REGLAGES[1].opts[etat.ambiance];
+  return o.saison ? o.saison[saisonDecor(s)] : o.v;
+}
+function ambianceFr(s){
+  const o = REGLAGES[1].opts[etat.ambiance];
+  return o.saison ? DECOR_FR[saisonDecor(s)] : o.fr;
+}
+
 function construire(s, f, i){
   const p = piece(s, f, i);
   const t = teinte(s, f, i);
   const cad = REGLAGES[0].opts[etat.cadrage].v;
-  const amb = REGLAGES[1].opts[etat.ambiance].v;
+  const amb = ambianceDe(s);
   const suf = REGLAGES[2].opts[etat.outil].v;
 
   if (s === "cendres"){
@@ -562,7 +589,7 @@ function construire(s, f, i){
 }
 
 function charte(s, f){
-  const amb = REGLAGES[1].opts[etat.ambiance].v;
+  const amb = ambianceDe(s);
   const cam = "CAMERA: medium format, 85mm, f/4, natural film grain, true soft colour, vertical 4:5 framing.\n\n";
   const mod = "MODEL: the same model throughout \u2014 mid-twenties, hair pulled back flat, bare skin, minimal makeup, level gaze, no smile.\n";
 
@@ -747,6 +774,7 @@ function majTout(){
   majOnglets();
   if (futur) return;
   majPalette(); majGrille(); majCompteur();
+  if (typeof majRappel === "function") majRappel();
 }
 
 /* réglages atelier */
@@ -762,12 +790,23 @@ REGLAGES.forEach(r=>{
     b.onclick = ()=>{
       etat[r.cle] = i;
       [...p.children].forEach((x,j)=> x.setAttribute("aria-pressed", j===i));
+      majRappel();
       if (etat.ouvert !== null) ouvrirFiche(etat.ouvert);
     };
     p.appendChild(b);
   });
   bloc.appendChild(p); elReg.appendChild(bloc);
 });
+
+const rappel = document.createElement("p");
+rappel.className = "rappel";
+rappel.id = "rappel";
+elReg.appendChild(rappel);
+
+function majRappel(){
+  const s = estCendres() ? "cendres" : etat.saison;
+  rappel.textContent = "Décor : " + ambianceFr(s);
+}
 
 /* ===================== OUTILS ===================== */
 function flash(b, mot){
