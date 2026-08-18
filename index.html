@@ -78,7 +78,6 @@ body.saisie .code{margin-top:26px}
   transition:background .12s,color .12s;
 }
 .touche:active{background:var(--marina);color:#fff}
-.touche.util{font-size:13px;color:var(--gris)}
 .touche.ok{background:var(--marina);color:#fff;border-color:var(--marina)}
 .annuler{
   appearance:none;background:transparent;border:1px solid var(--trait);color:var(--gris);
@@ -884,7 +883,7 @@ function frappe(v){
 
 ["1","2","3","4","5","6","7","8","9","eff","0","ok"].forEach(v=>{
   const b = document.createElement("button");
-  b.className = "touche" + (v === "eff" ? " util" : "") + (v === "ok" ? " ok" : "");
+  b.className = "touche" + (v === "ok" ? " ok" : "");
   b.type = "button";
   b.textContent = v === "eff" ? "\u232B" : v === "ok" ? "OK" : v;
   b.onclick = ()=> frappe(v);
