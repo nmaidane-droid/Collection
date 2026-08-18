@@ -472,10 +472,10 @@ hiver:{manteau:"double-faced cashmere",tailleur:"cold wool",maille:"cashmere",pa
 
 const REGLAGES = [
   {cle:"cadrage", titre:"Cadrage", opts:[
-    {l:"Plein pied", v:"Full-body shot"},
-    {l:"Trois-quarts", v:"Three-quarter length shot"},
-    {l:"Détail matière", v:"Extreme close-up on the fabric texture and construction"},
-    {l:"Mouvement", v:"Full-body shot mid-stride, fabric in motion"}]},
+    {l:"Plein pied", v:"Vertical 4:5 full-length portrait. The complete figure is visible, from the top of the head down to the shoes, with clear empty space above the head and below the feet. Do not crop the head, the hands or the feet"},
+    {l:"Trois-quarts", v:"Vertical 4:5 three-quarter portrait, framed from above the head down to mid-calf. The head and face are fully visible and must never be cropped"},
+    {l:"Détail matière", v:"Vertical 4:5 extreme close-up on the fabric texture, the seams and the construction of the garment"},
+    {l:"Mouvement", v:"Vertical 4:5 full-length portrait taken mid-stride, the complete figure visible from the top of the head down to the shoes, fabric lifting in motion. Do not crop the head or the feet"}]},
   {cle:"ambiance", titre:"Ambiance", opts:[
     {l:"Extérieur", v:null, fr:"décor extérieur choisi selon la saison", saison:{
       printemps:"on a city street in clear spring daylight, pale open sky, early foliage on the trees, blurred urban background",
@@ -490,7 +490,7 @@ const REGLAGES = [
 ];
 
 const SIGNATURE = " House signature, applied wherever the garment allows: a high stand-up funnel collar, sharply squared shoulders, and a slim silver chain belt worn low with a small medallion drop.";
-const QUEUE = " Same model and same photographic treatment across the whole family. Medium format, 85mm, natural film grain, true soft colour, razor-sharp fabric detail, photorealistic, editorial.";
+const QUEUE = " Same model and same photographic treatment across the whole family. Medium format, 85mm, natural film grain, true soft colour, razor-sharp fabric detail, photorealistic, editorial. Output a vertical 4:5 portrait image, 1024 by 1280 pixels.";
 
 /* ---------- collection d'archive : Cendres & Velours ---------- */
 const CENDRES = {
@@ -579,18 +579,19 @@ function construire(s, f, i){
 
   if (s === "cendres"){
     return "[CENDRES & VELOURS — LOOK " + String(i+1).padStart(2,"0") + " · " + p.nom.toUpperCase() + "] " +
-           cad + " of a model wearing " + p.en.replace("%C%", t[2]) + ", " + amb + "." + QUEUE + suf;
+           cad + ". The model wears " + p.en.replace("%C%", t[2]) + ", " + amb + "." + QUEUE + suf;
   }
   const m = MATIERES[s][f];
   return "[2026 " + sais(s).nom.toUpperCase() + " · " + fam(f).nom.toUpperCase() +
          " " + String(i+1).padStart(2,"0") + " — " + p.nom.toUpperCase() + "] " +
-         cad + " of a model wearing " + p.en.replace("%C%", t[2]).replace("%M%", m) +
+         cad + ". The model wears " + p.en.replace("%C%", t[2]).replace("%M%", m) +
          ", " + amb + "." + SIGNATURE + QUEUE + suf;
 }
 
 function charte(s, f){
   const amb = ambianceDe(s);
-  const cam = "CAMERA: medium format, 85mm, f/4, natural film grain, true soft colour, vertical 4:5 framing.\n\n";
+  const cam = "CAMERA: medium format, 85mm, f/4, natural film grain, true soft colour.\n" +
+    "FRAMING, non negotiable on every image: vertical 4:5 portrait, 1024 by 1280 pixels. The complete figure must be visible from the top of the head down to the shoes, with clear empty space above the head and below the feet. Never crop the head, the face or the feet. If the garment is long, step back rather than crop.\n\n";
   const mod = "MODEL: the same model throughout \u2014 mid-twenties, hair pulled back flat, bare skin, minimal makeup, level gaze, no smile.\n";
 
   if (s === "cendres"){

@@ -2,7 +2,7 @@
    MÉRIDIENNE — service worker
    À CHAQUE MODIFICATION D'UN FICHIER, INCRÉMENTER VERSION
    ======================================================= */
-const VERSION = 'silhouette-v11';
+const VERSION = 'silhouette-v12';
 
 const COQUE = [
   './',
