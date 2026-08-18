@@ -490,7 +490,7 @@ const REGLAGES = [
 ];
 
 const SIGNATURE = " House signature, the only element repeated across the collection: a slim silver chain belt worn low with a small medallion drop, wherever the garment allows. Everything else about the cut must follow the description above and differ from the other pieces.";
-const QUEUE = " Same model and same photographic treatment across the whole family. Medium format, 85mm, natural film grain, true soft colour, razor-sharp fabric detail, photorealistic, editorial. Output a vertical 4:5 portrait image, 1024 by 1280 pixels.";
+const QUEUE = " Use only the model described for this LOOK. She must be visibly different from every model used in the other LOOKS. Keep the same photographic treatment across the collection, but never the same model. Medium format, 85mm, natural film grain, true soft colour, razor-sharp fabric detail, photorealistic, editorial. Output a vertical 4:5 portrait image, 1024 by 1280 pixels.";
 
 /* ---------- collection d'archive : Cendres & Velours ---------- */
 const CENDRES = {
@@ -556,6 +556,19 @@ function piece(s, f, i){
   return {nom:d[0], desc:d[1], en:d[2]};
 }
 
+const CASTING = [
+  "Caucasian woman, mid-twenties, oval face, dark brown eyes, straight dark brown hair pulled back flat, strong straight eyebrows, narrow nose",
+  "Caucasian woman, mid-twenties, angular face, pale blue eyes, shoulder-length ash-blonde wavy hair, high cheekbones, fine eyebrows",
+  "Caucasian woman, mid-twenties, heart-shaped face, green eyes, short natural copper-red curls, light freckles, delicate features",
+  "Caucasian woman, mid-twenties, long narrow face, grey eyes, jet-black geometric chin-length bob with blunt bangs, pronounced cheekbones",
+  "Caucasian woman, mid-twenties, square face, hazel eyes, long dark-blonde hair pulled into a low ponytail, strong jawline",
+  "Caucasian woman, mid-twenties, round face, blue-grey eyes, platinum-blonde pixie cut, soft facial features",
+  "Caucasian woman, mid-twenties, elongated oval face, dark green eyes, medium chestnut hair in a sleek low bun, prominent cheekbones",
+  "Caucasian woman, mid-twenties, diamond-shaped face, light brown eyes, long auburn hair swept tightly back, defined jaw and brows",
+  "Caucasian woman, mid-twenties, broad oval face, pale green eyes, short dark-brown textured crop, straight nose and strong cheekbones",
+  "Caucasian woman, mid-twenties, narrow heart-shaped face, steel-blue eyes, honey-blonde hair in a clean high bun, fine features"
+];
+
 const DECOR_FR = {
   printemps:"rue de ville, lumière claire de printemps",
   ete:"front de mer, plein soleil d'été",
@@ -563,8 +576,8 @@ const DECOR_FR = {
   hiver:"rue froide et humide, lumière grise"
 };
 
-/* l'ambiance Extérieur suit la saison ; Cendres & Velours est une collection d'hiver */
-function saisonDecor(s){ return (s === "cendres") ? "hiver" : s; }
+/* l'ambiance Extérieur suit la saison ; Cendres & Velours prend le décor d'automne */
+function saisonDecor(s){ return (s === "cendres") ? "automne" : s; }
 function ambianceDe(s){
   const o = REGLAGES[1].opts[etat.ambiance];
   return o.saison ? o.saison[saisonDecor(s)] : o.v;
@@ -583,12 +596,12 @@ function construire(s, f, i){
 
   if (s === "cendres"){
     return "[CENDRES & VELOURS — LOOK " + String(i+1).padStart(2,"0") + " · " + p.nom.toUpperCase() + "] " +
-           cad + ". The model wears " + p.en.replace("%C%", t[2]) + ", " + amb + "." + QUEUE + suf;
+           cad + ". MODEL: " + CASTING[i] + ". She wears " + p.en.replace("%C%", t[2]) + ", " + amb + "." + QUEUE + suf;
   }
   const m = MATIERES[s][f][i % 3];
   return "[2026 " + sais(s).nom.toUpperCase() + " · " + fam(f).nom.toUpperCase() +
          " " + String(i+1).padStart(2,"0") + " — " + p.nom.toUpperCase() + "] " +
-         cad + ". The model wears " + p.en.replace("%C%", t[2]).replace("%M%", m) +
+         cad + ". MODEL: " + CASTING[i] + ". She wears " + p.en.replace("%C%", t[2]).replace("%M%", m) +
          ", " + amb + "." + SIGNATURE + QUEUE + suf;
 }
 
@@ -596,7 +609,9 @@ function charte(s, f){
   const amb = ambianceDe(s);
   const cam = "CAMERA: medium format, 85mm, f/4, natural film grain, true soft colour.\n" +
     "FRAMING, non negotiable on every image: vertical 4:5 portrait, 1024 by 1280 pixels. The complete figure must be visible from the top of the head down to the shoes, with clear empty space above the head and below the feet. Never crop the head, the face or the feet. If the garment is long, step back rather than crop.\n\n";
-  const mod = "MODEL: the same model throughout \u2014 mid-twenties, hair pulled back flat, bare skin, minimal makeup, level gaze, no smile.\n";
+  const mod = "MODEL CASTING: use a different female fashion model for every look. Never reuse the same model, face, facial structure, hairstyle or overall appearance from one image to another. Every model must be visibly and immediately distinguishable from the models used in the other looks.\n" +
+    "All models should have a Caucasian/European appearance and be in their mid-twenties. Vary the facial features, face shape, eye colour, hair colour, haircut and hairstyle substantially from one look to the next. Maintain bare skin, minimal makeup, a level gaze and no smile throughout the collection.\n" +
+    "Each LOOK prompt will specify its own model. Follow only the model description written in that LOOK. Do not reproduce or approximate the face of a model from a previous image.\n";
 
   if (s === "cendres"){
     return "SERIES BRIEF \u2014 Cendres & Velours\n\n" +
@@ -604,7 +619,7 @@ function charte(s, f){
       mod + "SET: identical in every image \u2014 " + amb + ".\n" +
       "HOUSE SIGNATURE, present on every look: a high stand-up funnel collar, sharply squared shoulders, and a slim silver chain belt worn low with a small medallion drop.\n" +
       "PALETTE: only these shades \u2014 " + CENDRES.palette.map(t=>t[2]).join(", ") + ". No other colour anywhere.\n" + cam +
-      "Confirm you have this brief, then wait for LOOK 01.";
+      "EXECUTION: send one LOOK at a time. Never ask for a board, a grid or a contact sheet.\n\nConfirm you have this brief, then wait for LOOK 01.";
   }
   return "SERIES BRIEF \u2014 2026 " + sais(s).nom + " \u00b7 " + fam(f).nom + "\n\n" +
     "You are shooting ten variations of one garment family for a single women's collection. Keep everything below identical across all ten images.\n\n" +
@@ -612,7 +627,7 @@ function charte(s, f){
     "HOUSE SIGNATURE: a slim silver chain belt worn low with a small medallion drop, wherever the garment allows. This is the only repeated element. The ten pieces are ten genuinely different garments: follow each description exactly and do not carry a collar, a shoulder line or a closure from one piece to the next.\n" +
     "FABRICS used across the family: " + MATIERES[s][f].join(", ") + ".\n" +
     "PALETTE: only these six shades \u2014 " + PALETTES[s].t.map(t=>t[2]).join(", ") + ". No other colour anywhere.\n" + cam +
-    "Confirm you have this brief, then wait for piece 01.";
+    "EXECUTION: send one LOOK at a time. Never ask for a board, a grid or a contact sheet.\n\nConfirm you have this brief, then wait for piece 01.";
 }
 
 /* ===================== RENDU ===================== */
