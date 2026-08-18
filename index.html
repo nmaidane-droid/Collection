@@ -25,6 +25,7 @@
   --trait:rgba(17,17,19,.13);
   --accent:#6E5518;
   --marina:#29497A;
+  --jaune:#E0A81E;
 }
 *{box-sizing:border-box}
 button,select,input{
@@ -50,16 +51,22 @@ header{padding:30px 0 20px;display:flex;align-items:flex-start;justify-content:s
 .marque em{font-style:italic;color:var(--gris)}
 .sous{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:17px;color:var(--gris);margin:9px 0 0;max-width:38ch}
 .cadenas{
-  appearance:none;background:transparent;border:1px solid var(--trait);color:var(--gris);
-  width:42px;height:42px;flex:0 0 42px;font-size:16px;cursor:pointer;transition:border-color .18s,color .18s;
+  appearance:none;background:transparent;border:1px solid var(--trait);color:var(--jaune);
+  width:42px;height:42px;flex:0 0 42px;font-size:16px;cursor:pointer;transition:border-color .18s,background .18s;
 }
-.cadenas:hover{border-color:var(--encre);color:var(--encre)}
-.cadenas.ouvert{border-color:var(--accent);color:var(--accent);background:#FBF7EC}
+.cadenas:hover{border-color:#E8B217}
+.cadenas.ouvert{border-color:#E8B217;background:#FDF4DD}
 .cadenas svg{display:block;margin:0 auto}
 
 .code{display:none;border:1px solid var(--trait);padding:22px 18px;margin-bottom:22px;
   flex-direction:column;align-items:center;gap:16px}
 .code.ouvert{display:flex}
+body.saisie .barre,
+body.saisie #zoneSaison,
+body.saisie #avenir,
+body.saisie footer,
+body.saisie .sous{display:none !important}
+body.saisie .code{margin-top:26px}
 .points{display:flex;gap:11px}
 .points i{width:11px;height:11px;border-radius:50%;border:1px solid var(--gris);background:transparent;transition:background .12s}
 .points i.plein{background:var(--marina);border-color:var(--marina)}
@@ -72,6 +79,12 @@ header{padding:30px 0 20px;display:flex;align-items:flex-start;justify-content:s
 }
 .touche:active{background:var(--marina);color:#fff}
 .touche.util{font-size:13px;color:var(--gris)}
+.touche.ok{background:var(--marina);color:#fff;border-color:var(--marina)}
+.annuler{
+  appearance:none;background:transparent;border:1px solid var(--trait);color:var(--gris);
+  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  padding:12px 0;width:100%;max-width:270px;cursor:pointer;
+}
 
 /* ---------- sélecteurs ---------- */
 .barre{border-top:1px solid var(--trait);padding:16px 0 0;margin-bottom:24px}
@@ -148,7 +161,7 @@ body.admin .fichier{display:block}
 .fiche .img img{width:100%;height:100%;object-fit:cover;display:block}
 .fiche h2{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:34px;line-height:1.05;margin:18px 0 4px}
 .fiche .meta{font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--gris);margin:0 0 14px}
-.fiche .desc{font-family:'Cormorant Garamond',serif;font-size:19px;line-height:1.45;color:#3A3A3D;margin:0 0 18px}
+.fiche .desc{font-family:'Cormorant Garamond',serif;font-size:19px;line-height:1.45;color:var(--gris);margin:0 0 18px}
 .fermer{appearance:none;background:transparent;border:1px solid var(--trait);color:var(--gris);font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;padding:11px 18px;cursor:pointer;margin-top:8px}
 .nav{display:flex;gap:6px;margin-bottom:14px}
 .zone-admin{display:none;margin-top:20px;padding-top:18px;border-top:1px solid var(--trait)}
@@ -180,6 +193,12 @@ body.admin .panneau{display:block}
 
 .code{display:none;border:1px solid var(--trait);padding:18px;margin-bottom:22px;align-items:center;gap:10px;flex-wrap:wrap}
 .code.ouvert{display:flex}
+body.saisie .barre,
+body.saisie #zoneSaison,
+body.saisie #avenir,
+body.saisie footer,
+body.saisie .sous{display:none !important}
+body.saisie .code{margin-top:26px}
 .code input{background:var(--surface);border:1px solid var(--trait);color:var(--encre);font-family:'IBM Plex Mono',monospace;font-size:18px;letter-spacing:.4em;padding:11px 14px;width:150px;text-align:center}
 .code p{margin:0;font-size:13px;color:var(--gris);flex:1 1 100%}
 
@@ -201,13 +220,14 @@ footer b{color:var(--encre);font-weight:400}
     <h1 class="marque">Sil<em>houette</em></h1>
     <p class="sous">Vestiaire femme 2026 — quatre saisons, dix familles, dix déclinaisons par famille.</p>
   </div>
-  <button class="cadenas" id="cadenas" title="Espace atelier" aria-label="Espace atelier"><svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="4.5" y="10.3" width="15" height="10.2" rx="1.6"/><path d="M8.2 10.3V7.4a3.8 3.8 0 0 1 7.6 0v2.9"/><circle cx="12" cy="15.4" r="1.15" fill="currentColor" stroke="none"/></svg></button>
+  <button class="cadenas" id="cadenas" title="Espace atelier" aria-label="Espace atelier"><svg viewBox="0 0 24 24" width="21" height="21"><path d="M7.7 10.8V7.7a4.3 4.3 0 0 1 8.6 0v3.1" fill="none" stroke="#C7960F" stroke-width="2.2" stroke-linecap="round"/><rect x="4.3" y="10.3" width="15.4" height="10.9" rx="2.3" fill="#E8B217"/><circle cx="12" cy="14.9" r="1.5" fill="#7A5A05"/><rect x="11.25" y="15.4" width="1.5" height="3.2" rx="0.75" fill="#7A5A05"/></svg></button>
 </header>
 
 <div class="code" id="zoneCode">
   <span class="etiq">Code atelier</span>
   <div class="points" id="points"></div>
   <div class="clavier" id="clavier"></div>
+  <button class="annuler" id="annuler" type="button">Annuler</button>
 </div>
 
 <div class="barre">
@@ -797,8 +817,8 @@ function texteSaison(s){
 }
 
 /* ===================== CADENAS ===================== */
-const CADENAS_FERME  = '<svg viewBox=\"0 0 24 24\" width=\"19\" height=\"19\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\"><rect x=\"4.5\" y=\"10.3\" width=\"15\" height=\"10.2\" rx=\"1.6\"/><path d=\"M8.2 10.3V7.4a3.8 3.8 0 0 1 7.6 0v2.9\"/><circle cx=\"12\" cy=\"15.4\" r=\"1.15\" fill=\"currentColor\" stroke=\"none\"/></svg>';
-const CADENAS_OUVERT = '<svg viewBox=\"0 0 24 24\" width=\"19\" height=\"19\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linecap=\"round\"><rect x=\"4.5\" y=\"10.3\" width=\"15\" height=\"10.2\" rx=\"1.6\"/><path d=\"M8.2 10.3V7.4a3.8 3.8 0 0 1 7.1-1.8\"/><circle cx=\"12\" cy=\"15.4\" r=\"1.15\" fill=\"currentColor\" stroke=\"none\"/></svg>';
+const CADENAS_FERME  = '<svg viewBox=\"0 0 24 24\" width=\"21\" height=\"21\"><path d=\"M7.7 10.8V7.7a4.3 4.3 0 0 1 8.6 0v3.1\" fill=\"none\" stroke=\"#C7960F\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><rect x=\"4.3\" y=\"10.3\" width=\"15.4\" height=\"10.9\" rx=\"2.3\" fill=\"#E8B217\"/><circle cx=\"12\" cy=\"14.9\" r=\"1.5\" fill=\"#7A5A05\"/><rect x=\"11.25\" y=\"15.4\" width=\"1.5\" height=\"3.2\" rx=\"0.75\" fill=\"#7A5A05\"/></svg>';
+const CADENAS_OUVERT = '<svg viewBox=\"0 0 24 24\" width=\"21\" height=\"21\"><path d=\"M7.7 10.8V7.7a4.3 4.3 0 0 1 8.1-2\" fill=\"none\" stroke=\"#C7960F\" stroke-width=\"2.2\" stroke-linecap=\"round\"/><rect x=\"4.3\" y=\"10.3\" width=\"15.4\" height=\"10.9\" rx=\"2.3\" fill=\"#E8B217\"/><circle cx=\"12\" cy=\"14.9\" r=\"1.5\" fill=\"#7A5A05\"/><rect x=\"11.25\" y=\"15.4\" width=\"1.5\" height=\"3.2\" rx=\"0.75\" fill=\"#7A5A05\"/></svg>';
 
 const zoneCode = document.getElementById("zoneCode");
 const elPoints = document.getElementById("points");
@@ -828,6 +848,12 @@ function refus(){
   setTimeout(()=>{ saisie = ""; elPoints.classList.remove("refus"); dessinePoints(); }, 700);
 }
 
+function fermerSaisie(){
+  saisie = ""; dessinePoints();
+  zoneCode.classList.remove("ouvert");
+  document.body.classList.remove("saisie");
+}
+
 async function verifier(){
   if (!crypto || !crypto.subtle){
     elPoints.classList.add("refus");
@@ -840,8 +866,7 @@ async function verifier(){
     const c = document.getElementById("cadenas");
     c.classList.add("ouvert");
     c.innerHTML = CADENAS_OUVERT;
-    zoneCode.classList.remove("ouvert");
-    saisie = ""; dessinePoints();
+    fermerSaisie();
     majCompteur(); majPastilles();
   } else {
     refus();
@@ -850,21 +875,22 @@ async function verifier(){
 
 function frappe(v){
   if (v === "eff"){ saisie = saisie.slice(0,-1); dessinePoints(); return; }
-  if (v === "ann"){ saisie = ""; dessinePoints(); zoneCode.classList.remove("ouvert"); return; }
+  if (v === "ann"){ fermerSaisie(); return; }
+  if (v === "ok"){ if (saisie.length === LONGUEUR) verifier(); else refus(); return; }
   if (saisie.length >= LONGUEUR) return;
   saisie += v;
   dessinePoints();
-  if (saisie.length === LONGUEUR) verifier();
 }
 
-["1","2","3","4","5","6","7","8","9","ann","0","eff"].forEach(v=>{
+["1","2","3","4","5","6","7","8","9","eff","0","ok"].forEach(v=>{
   const b = document.createElement("button");
-  b.className = "touche" + (v === "eff" || v === "ann" ? " util" : "");
+  b.className = "touche" + (v === "eff" ? " util" : "") + (v === "ok" ? " ok" : "");
   b.type = "button";
-  b.textContent = v === "eff" ? "\u232B" : v === "ann" ? "Annuler" : v;
+  b.textContent = v === "eff" ? "\u232B" : v === "ok" ? "OK" : v;
   b.onclick = ()=> frappe(v);
   elClavier.appendChild(b);
 });
+document.getElementById("annuler").onclick = ()=> frappe("ann");
 dessinePoints();
 
 document.getElementById("cadenas").onclick = function(){
@@ -876,7 +902,8 @@ document.getElementById("cadenas").onclick = function(){
     majFamilles();
     return;
   }
-  zoneCode.classList.toggle("ouvert");
+  const ouvert = zoneCode.classList.toggle("ouvert");
+  document.body.classList.toggle("saisie", ouvert);
   saisie = ""; dessinePoints();
 };
 
@@ -884,6 +911,7 @@ document.addEventListener("keydown", e=>{
   if (!zoneCode.classList.contains("ouvert")) return;
   if (/^[0-9]$/.test(e.key)) frappe(e.key);
   else if (e.key === "Backspace") frappe("eff");
+  else if (e.key === "Enter") frappe("ok");
   else if (e.key === "Escape") frappe("ann");
 });
 
