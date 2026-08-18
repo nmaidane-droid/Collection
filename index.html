@@ -569,6 +569,30 @@ const CASTING = [
   "Caucasian woman, mid-twenties, narrow heart-shaped face, steel-blue eyes, honey-blonde hair in a clean high bun, fine features"
 ];
 
+const ATMOSPHERE = {
+  printemps:"clear spring daylight, a pale open sky, early foliage on the trees and a softly blurred urban environment",
+  ete:"high summer sunlight, hard midday light, sea light on white walls and a softly blurred environment",
+  automne:"fallen autumn leaves, low golden autumn light and a softly blurred urban environment",
+  hiver:"cold damp winter air, flat grey light, wet pavement reflections and a softly blurred urban environment"
+};
+
+/* vrai seulement quand l'ambiance retenue est un extérieur */
+function estExterieur(){ return !!REGLAGES[1].opts[etat.ambiance].saison; }
+
+/* clause ajoutée à chaque LOOK pour interdire de refaire le même lieu */
+function lieuUnique(){
+  return estExterieur()
+    ? " Use a city location completely different from every other LOOK: a different street, a different architecture, a different perspective and no shared landmark."
+    : "";
+}
+
+/* règle SET de la charte de série */
+function regleSet(s){
+  if (!estExterieur()) return "SET: identical in every image \u2014 " + ambianceDe(s) + ".\n";
+  return "SET: use a completely different city location and background for every LOOK. Never reuse the same street, architecture, perspective, landmarks or background composition. " +
+         "Keep only the overall seasonal atmosphere consistent: " + ATMOSPHERE[saisonDecor(s)] + ".\n";
+}
+
 const DECOR_FR = {
   printemps:"rue de ville, lumière claire de printemps",
   ete:"front de mer, plein soleil d'été",
@@ -596,13 +620,13 @@ function construire(s, f, i){
 
   if (s === "cendres"){
     return "[CENDRES & VELOURS — LOOK " + String(i+1).padStart(2,"0") + " · " + p.nom.toUpperCase() + "] " +
-           cad + ". MODEL: " + CASTING[i] + ". She wears " + p.en.replace("%C%", t[2]) + ", " + amb + "." + QUEUE + suf;
+           cad + ". MODEL: " + CASTING[i] + ". She wears " + p.en.replace("%C%", t[2]) + ", " + amb + "." + lieuUnique() + QUEUE + suf;
   }
   const m = MATIERES[s][f][i % 3];
   return "[2026 " + sais(s).nom.toUpperCase() + " · " + fam(f).nom.toUpperCase() +
          " " + String(i+1).padStart(2,"0") + " — " + p.nom.toUpperCase() + "] " +
          cad + ". MODEL: " + CASTING[i] + ". She wears " + p.en.replace("%C%", t[2]).replace("%M%", m) +
-         ", " + amb + "." + SIGNATURE + QUEUE + suf;
+         ", " + amb + "." + lieuUnique() + SIGNATURE + QUEUE + suf;
 }
 
 function charte(s, f){
@@ -616,14 +640,14 @@ function charte(s, f){
   if (s === "cendres"){
     return "SERIES BRIEF \u2014 Cendres & Velours\n\n" +
       "You are shooting a ten-look autumn-winter collection. Keep everything below identical across all ten images.\n\n" +
-      mod + "SET: identical in every image \u2014 " + amb + ".\n" +
+      mod + regleSet(s) +
       "HOUSE SIGNATURE, present on every look: a high stand-up funnel collar, sharply squared shoulders, and a slim silver chain belt worn low with a small medallion drop.\n" +
       "PALETTE: only these shades \u2014 " + CENDRES.palette.map(t=>t[2]).join(", ") + ". No other colour anywhere.\n" + cam +
       "EXECUTION: send one LOOK at a time. Never ask for a board, a grid or a contact sheet.\n\nConfirm you have this brief, then wait for LOOK 01.";
   }
   return "SERIES BRIEF \u2014 2026 " + sais(s).nom + " \u00b7 " + fam(f).nom + "\n\n" +
     "You are shooting ten variations of one garment family for a single women's collection. Keep everything below identical across all ten images.\n\n" +
-    mod + "SET: identical in every image \u2014 " + amb + ".\n" +
+    mod + regleSet(s) +
     "HOUSE SIGNATURE: a slim silver chain belt worn low with a small medallion drop, wherever the garment allows. This is the only repeated element. The ten pieces are ten genuinely different garments: follow each description exactly and do not carry a collar, a shoulder line or a closure from one piece to the next.\n" +
     "FABRICS used across the family: " + MATIERES[s][f].join(", ") + ".\n" +
     "PALETTE: only these six shades \u2014 " + PALETTES[s].t.map(t=>t[2]).join(", ") + ". No other colour anywhere.\n" + cam +
